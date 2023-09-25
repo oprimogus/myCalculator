@@ -25,7 +25,9 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        getSupportActionBar().setTitle("Minha Calculadora");
+        String appName = getResources().getString(R.string.app_name);
+
+        getSupportActionBar().setTitle(appName);
 
         firstNumberEditTextSum = findViewById(R.id.editTextNumberDecimal_firstNumberSum);
         secondNumberEditTextSum = findViewById(R.id.editTextNumberDecimal4_SecondNumberSum);
