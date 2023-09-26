@@ -5,16 +5,31 @@ import androidx.appcompat.widget.Toolbar;
 
 import android.os.Bundle;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.GridView;
 import android.widget.TextView;
 
 public class MainActivity extends AppCompatActivity {
 
-    private EditText firstNumberEditTextSum, secondNumberEditTextSum;
-    private Button calculateButton;
-    private TextView resultTextViewSum;
+    private TextView result;
+    private double firstValue = 0.0, secondValue = 0.0;
+    private String currentOperation = "", currentInput = "0";
+    private GridView gridView;
+    private CalculatorAdapter adapter;
 
+    private void updateDisplay() {
+        result.setText(currentInput);
+    }
+
+    private void clearAll() {
+        firstValue = 0.0;
+        secondValue = 0.0;
+        currentOperation = "";
+        currentInput = "0";
+        updateDisplay();
+    }
 
 
     @Override
@@ -24,24 +39,65 @@ public class MainActivity extends AppCompatActivity {
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
         String appName = getResources().getString(R.string.app_name);
-
         getSupportActionBar().setTitle(appName);
 
-        firstNumberEditTextSum = findViewById(R.id.editTextNumberDecimal_firstNumberSum);
-        secondNumberEditTextSum = findViewById(R.id.editTextNumberDecimal4_SecondNumberSum);
-        calculateButton = findViewById(R.id.button_calculate);
-        resultTextViewSum = findViewById(R.id.textView5_SumResult);
+        result = findViewById(R.id.textView5_SumResult);
 
-        calculateButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                double num1 = Double.parseDouble(firstNumberEditTextSum.getText().toString());
-                double num2 = Double.parseDouble(secondNumberEditTextSum.getText().toString());
-                double sum = num1 + num2;
-                resultTextViewSum.setText(String.valueOf(sum));
+        String[] buttons = {
+                "C", "±", "%", "/",
+                "1", "2", "3", "*",
+                "4", "5", "6", "-",
+                "7", "8", "9", "+",
+                "0", ",", "x^y", "="
+        };
+
+        gridView = findViewById(R.id.gridView);
+        adapter = new CalculatorAdapter(this, buttons);
+        gridView.setAdapter(adapter);
+
+        gridView.setOnItemClickListener((parent, view, position, id) -> {
+            String buttonText = buttons[position];
+
+            if ("0123456789".contains(buttonText)) {
+                if (currentInput.equals("0")) {
+                    currentInput = buttonText;
+                } else {
+                    currentInput += buttonText;
+                }
+            } else if ("+-*/".contains(buttonText)) {
+                firstValue = Double.parseDouble(currentInput);
+                currentOperation = buttonText;
+                currentInput = "0";
+            } else if (buttonText.equals("=")) {
+                secondValue = Double.parseDouble(currentInput);
+
+                // TO-DO: Implementar funcionalidade + ou -, % e de x^y ou colocar raiz quadrada no lugar,
+
+                switch (currentOperation) {
+                    case "+":
+                        currentInput = String.valueOf(firstValue + secondValue);
+                        break;
+                    case "-":
+                        currentInput = String.valueOf(firstValue - secondValue);
+                        break;
+                    case "*":
+                        currentInput = String.valueOf(firstValue * secondValue);
+                        break;
+                    case "/":
+                        if (secondValue != 0) {
+                            currentInput = String.valueOf(firstValue / secondValue);
+                        } else {
+                            currentInput = "Erro";
+                        }
+                        break;
+                }
+            } else if (buttonText.equals("C")) {
+                clearAll();
+                return;
             }
+
+            updateDisplay();
         });
     }
 }
