@@ -23,6 +23,10 @@ public class MainActivity extends AppCompatActivity {
         result.setText(currentInput);
     }
 
+    private void updateDisplay(String value) {
+        result.setText(value);
+    }
+
     private void clearAll() {
         firstValue = 0.0;
         secondValue = 0.0;
@@ -58,17 +62,23 @@ public class MainActivity extends AppCompatActivity {
 
         gridView.setOnItemClickListener((parent, view, position, id) -> {
             String buttonText = buttons[position];
-
             if ("0123456789".contains(buttonText)) {
                 if (currentInput.equals("0")) {
                     currentInput = buttonText;
                 } else {
                     currentInput += buttonText;
                 }
-            } else if ("+-*/".contains(buttonText)) {
+                updateDisplay();
+            } else if ("+-*/x^y".contains(buttonText)) {
                 firstValue = Double.parseDouble(currentInput);
                 currentOperation = buttonText;
                 currentInput = "0";
+                updateDisplay();
+            } else if (",".contains(buttonText)) {
+                if (!currentInput.contains(",")) {
+                    currentInput += ".";
+                }
+                updateDisplay();
             } else if (buttonText.equals("=")) {
                 secondValue = Double.parseDouble(currentInput);
 
@@ -84,6 +94,9 @@ public class MainActivity extends AppCompatActivity {
                     case "*":
                         currentInput = String.valueOf(firstValue * secondValue);
                         break;
+                    case "x^y":
+                        currentInput = String.valueOf(Math.pow(firstValue, secondValue));
+                        break;
                     case "/":
                         if (secondValue != 0) {
                             currentInput = String.valueOf(firstValue / secondValue);
@@ -92,12 +105,30 @@ public class MainActivity extends AppCompatActivity {
                         }
                         break;
                 }
+                try {
+                    double resultNumber = Double.parseDouble(currentInput);
+                    if (resultNumber == (int) resultNumber) {
+                        updateDisplay(String.valueOf((int) resultNumber));
+                    } else {
+                        updateDisplay();
+                    }
+                } catch (RuntimeException error) {
+                    updateDisplay();
+                }
+
             } else if (buttonText.equals("C")) {
                 clearAll();
-                return;
+                updateDisplay();
+            }
+            else if (buttonText.equals("±")) {
+                currentInput = String.valueOf(Double.parseDouble(currentInput) * -1);
+                updateDisplay();
+            }
+            else if (buttonText.equals("%")) {
+                currentInput = String.valueOf(Double.parseDouble(currentInput) / 100);
+                updateDisplay();
             }
 
-            updateDisplay();
         });
     }
 }
